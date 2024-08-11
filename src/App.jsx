@@ -14,7 +14,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<ProtectedRoute><Navbar /><TaskList /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Navbar /><Profile /></ProtectedRoute>} />
-        <Route path="/*" element={<NotFound />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>
   );
