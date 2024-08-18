@@ -14,7 +14,7 @@ export const getPriorityEmoji = (task) => {
     return "⚠️";
   } else if (isEmpty(priority)) {
     return "⚠️";
-  } else if (status === 1) {
+  } else if (status === 48) {
     return "✔️";
   } else if (entrega.getTime() === now.getTime() || diasRestantes === 0) {
     return "🔴";

@@ -7,6 +7,8 @@ const ACTIONS = {
     LOGIN: "LOGIN",
     LOGOUT: "LOGOUT",
     SET_USER: "SET_USER",
+    ADD_TASK: "ADD_TASK",
+    SET_TASKS: "SET_TASKS",
 };
 
 function reducer(state, action) {
@@ -27,6 +29,17 @@ function reducer(state, action) {
                 isAuthenticated: false,
                 user: null,
                 token: null,
+                tasks: [],
+            };
+        case ACTIONS.ADD_TASK:
+            return {
+                ...state,
+                tasks: [...state.tasks, action.payload],
+            };
+        case ACTIONS.SET_TASKS:
+            return {
+                ...state,
+                tasks: action.payload,
             };
         default:
             return state;
@@ -38,6 +51,7 @@ function AuthProvider({ children }) {
         token: localStorage.getItem("authToken") || null,
         user: JSON.parse(localStorage.getItem("user")) || null,
         isAuthenticated: !!localStorage.getItem("authToken"),
+        tasks: [],
     });
     const navigate = useNavigate();
     const location = useLocation();
@@ -84,6 +98,12 @@ function AuthProvider({ children }) {
         logout: () => {
             dispatch({ type: ACTIONS.LOGOUT });
             navigate("/login");
+        },
+        addTask: (task) => {
+            dispatch({ type: ACTIONS.ADD_TASK, payload: task });
+        },
+        setTasks: (tasks) => {
+            dispatch({ type: ACTIONS.SET_TASKS, payload: tasks });
         },
     };
 

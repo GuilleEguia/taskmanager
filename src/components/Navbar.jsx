@@ -6,7 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 
 const Navbar = () => {
-    const { state } = useAuth();
+    const { state, actions } = useAuth();
     const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
     const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
     const [projectName, setProjectName] = useState('');
@@ -18,11 +18,29 @@ const Navbar = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const location = useLocation();
+    const [totalCount, setTotalCount] = useState(0);
 
     useEffect(() => {
-        const fetchProjects = async () => {
+        const fetchTotalCount = async () => {
             try {
                 const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}taskmanager/projects/`, {
+                    headers: {
+                        Authorization: `Token ${state.token}`,
+                    },
+                });
+                if (!response.ok) {
+                    throw new Error('Error al obtener el conteo de proyectos');
+                }
+                const data = await response.json();
+                setTotalCount(data.count);
+            } catch (error) {
+                setError('Ocurrió un error al obtener el conteo de proyectos');
+            }
+        };
+
+        const fetchProjects = async () => {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}taskmanager/projects/?page=1&page_size=${totalCount}`, {
                     headers: {
                         Authorization: `Token ${state.token}`,
                     },
@@ -41,9 +59,10 @@ const Navbar = () => {
         };
 
         if (showCreateTaskModal) {
+            fetchTotalCount();
             fetchProjects();
         }
-    }, [showCreateTaskModal, state.token, state.user]);
+    }, [showCreateTaskModal, state.token, state.user, totalCount]);
 
     const handleCreateProject = async () => {
         setIsLoading(true);
@@ -87,6 +106,8 @@ const Navbar = () => {
             if (!response.ok) {
                 throw new Error('Error al crear tarea');
             }
+            const createdTask = await response.json();
+            actions.addTask(createdTask);
             setShowCreateTaskModal(false);
             setTaskTitle('');
             setTaskDescription('');
